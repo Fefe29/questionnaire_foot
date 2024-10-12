@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Déplacements et véhicules foot</title>
+    <title>Déplacements et véhicules foot Arradon</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -98,12 +98,35 @@
         .legend span {
             font-weight: bold;
         }
+
+        /* Style pour le bouton effacer les données en petit tout en bas */
+        .clear-data-section {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #fff;
+        }
+
+        .clear-data-section button {
+            font-size: 10px;
+            padding: 5px 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .clear-data-section p {
+            margin-top: 10px;
+            font-size: 10px;
+            color: #ffcccc;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Déplacements et véhicules foot</h1>
-    <!-- Insertion du logo centré sous le titre sans transparence -->
+    <h1>Déplacements et véhicules foot Arradon</h1>
     <img src="logo.png" alt="Logo" class="logo-centered">
 
     <form id="transportForm">
@@ -145,13 +168,6 @@
         <tbody id="eventTable">
             <!-- Les informations seront ajoutées ici -->
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="2">Total général des places</td>
-                <td id="totalSeatsAller"></td>
-                <td id="totalSeatsRetour"></td>
-            </tr>
-        </tfoot>
     </table>
 
     <div class="legend">
@@ -160,20 +176,21 @@
         <p><span class="orange">Orange</span> : Les parents peuvent venir si besoin.</p>
     </div>
 
+    <!-- Section en bas de la page pour effacer les données -->
+    <div class="clear-data-section">
+        <button id="clearDataButton">Effacer les données</button>
+        <p>Attention suppression définitive réservée au gestionnaire</p>
+    </div>
 
     <script>
         const form = document.getElementById('transportForm');
         const eventTable = document.getElementById('eventTable');
-        const totalSeatsAllerCell = document.getElementById('totalSeatsAller');
-        const totalSeatsRetourCell = document.getElementById('totalSeatsRetour');
         const transportOption = document.getElementById('transportOption');
         const optionalChoices = document.getElementById('optionalChoices');
         const sureCheckbox = document.getElementById('sureCheckbox');
         const ifNeededCheckbox = document.getElementById('ifNeededCheckbox');
         
         let eventData = JSON.parse(localStorage.getItem('eventData')) || {}; // Charger les données sauvegardées
-        let grandTotalSeatsAller = 0;
-        let grandTotalSeatsRetour = 0;
 
         // Afficher les données sauvegardées au démarrage
         window.addEventListener('load', function() {
@@ -208,8 +225,10 @@
                 placesRetour = carSeats;
             } else if (transportOption.value === 'aller') {
                 placesAller = carSeats;
+                placesRetour = 0;  // Pas de places au retour
             } else if (transportOption.value === 'retour') {
                 placesRetour = carSeats;
+                placesAller = 0;  // Pas de places à l'aller
             }
 
             let className = '';
@@ -241,8 +260,6 @@
 
             eventData[date].totalSeatsAller += placesAller;
             eventData[date].totalSeatsRetour += placesRetour;
-            grandTotalSeatsAller += placesAller;
-            grandTotalSeatsRetour += placesRetour;
 
             // Sauvegarder les données dans localStorage
             localStorage.setItem('eventData', JSON.stringify(eventData));
@@ -255,8 +272,9 @@
         function updateEventTable() {
             eventTable.innerHTML = '';
             for (const date in eventData) {
-                const childrenList = eventData[date].children.map(child => `
+                const childrenList = eventData[date].children.map((child, index) => `
                     <span class="${child.className}">${child.name}</span> (${child.seatsAller} places à l'aller, ${child.seatsRetour} places au retour)
+                    <button onclick="deleteEntry('${date}', ${index})">Supprimer</button>
                 `).join(', ');
 
                 const totalSeatsAller = eventData[date].totalSeatsAller;
@@ -269,12 +287,37 @@
                         <td>${totalSeatsAller}</td>
                         <td>${totalSeatsRetour}</td>
                     </tr>
+                    <tr>
+                        <td colspan="2"><strong>Total pour cette date :</strong></td>
+                        <td><strong>${totalSeatsAller}</strong></td>
+                        <td><strong>${totalSeatsRetour}</strong></td>
+                    </tr>
                 `;
                 eventTable.innerHTML += row;
             }
-            totalSeatsAllerCell.textContent = grandTotalSeatsAller;
-            totalSeatsRetourCell.textContent = grandTotalSeatsRetour;
         }
+
+        function deleteEntry(date, index) {
+            if (confirm("Êtes-vous sûr de vouloir supprimer cette entrée ?")) {
+                eventData[date].children.splice(index, 1); // Supprimer l'enfant de la liste
+
+                if (eventData[date].children.length === 0) {
+                    delete eventData[date]; // Supprimer l'entrée complète si elle est vide
+                }
+
+                localStorage.setItem('eventData', JSON.stringify(eventData)); // Mettre à jour localStorage
+                updateEventTable(); // Mettre à jour le tableau
+            }
+        }
+
+        document.getElementById('clearDataButton').addEventListener('click', function() {
+            if (confirm("Êtes-vous sûr de vouloir effacer toutes les données ?")) {
+                localStorage.removeItem('eventData'); // Effacer les données sauvegardées
+                eventData = {}; // Réinitialiser l'objet en mémoire
+                updateEventTable(); // Mettre à jour le tableau pour l'afficher vide
+            }
+        });
     </script>
+
 </body>
 </html>
