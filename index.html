@@ -160,8 +160,121 @@
         <p><span class="orange">Orange</span> : Les parents peuvent venir si besoin.</p>
     </div>
 
+
     <script>
-        // JavaScript inchangé
+        const form = document.getElementById('transportForm');
+        const eventTable = document.getElementById('eventTable');
+        const totalSeatsAllerCell = document.getElementById('totalSeatsAller');
+        const totalSeatsRetourCell = document.getElementById('totalSeatsRetour');
+        const transportOption = document.getElementById('transportOption');
+        const optionalChoices = document.getElementById('optionalChoices');
+        const sureCheckbox = document.getElementById('sureCheckbox');
+        const ifNeededCheckbox = document.getElementById('ifNeededCheckbox');
+        
+        let eventData = JSON.parse(localStorage.getItem('eventData')) || {}; // Charger les données sauvegardées
+        let grandTotalSeatsAller = 0;
+        let grandTotalSeatsRetour = 0;
+
+        // Afficher les données sauvegardées au démarrage
+        window.addEventListener('load', function() {
+            if (eventData) {
+                updateEventTable();
+            }
+        });
+
+        // Afficher les cases par défaut, mais les supprimer si "Aucun" est sélectionné
+        transportOption.addEventListener('change', function() {
+            if (transportOption.value === 'aucun') {
+                optionalChoices.style.display = 'none';
+                sureCheckbox.checked = false;
+                ifNeededCheckbox.checked = false;
+            } else {
+                optionalChoices.style.display = 'block';
+            }
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prévenir le rechargement de la page
+
+            const childName = document.getElementById('childName').value;
+            const date = document.getElementById('date').value;
+            const carSeats = parseInt(document.getElementById('carSeats').value);
+
+            let placesAller = 0;
+            let placesRetour = 0;
+
+            if (transportOption.value === 'allerRetour') {
+                placesAller = carSeats;
+                placesRetour = carSeats;
+            } else if (transportOption.value === 'aller') {
+                placesAller = carSeats;
+            } else if (transportOption.value === 'retour') {
+                placesRetour = carSeats;
+            }
+
+            let className = '';
+            if (sureCheckbox.checked) {
+                className = 'green';
+            } else if (ifNeededCheckbox.checked) {
+                className = 'orange';
+            }
+
+            if (transportOption.value !== 'aucun' && !className) {
+                alert('Veuillez sélectionner une option supplémentaire.');
+                return;
+            }
+
+            if (!eventData[date]) {
+                eventData[date] = {
+                    children: [],
+                    totalSeatsAller: 0,
+                    totalSeatsRetour: 0
+                };
+            }
+
+            eventData[date].children.push({
+                name: childName, 
+                seatsAller: placesAller, 
+                seatsRetour: placesRetour, 
+                className: className
+            });
+
+            eventData[date].totalSeatsAller += placesAller;
+            eventData[date].totalSeatsRetour += placesRetour;
+            grandTotalSeatsAller += placesAller;
+            grandTotalSeatsRetour += placesRetour;
+
+            // Sauvegarder les données dans localStorage
+            localStorage.setItem('eventData', JSON.stringify(eventData));
+
+            updateEventTable();
+            form.reset();
+            optionalChoices.style.display = 'block';  // Réafficher les cases après soumission
+        });
+
+        function updateEventTable() {
+            eventTable.innerHTML = '';
+            for (const date in eventData) {
+                const childrenList = eventData[date].children.map(child => `
+                    <span class="${child.className}">${child.name}</span> (${child.seatsAller} places à l'aller, ${child.seatsRetour} places au retour)
+                `).join(', ');
+
+                const totalSeatsAller = eventData[date].totalSeatsAller;
+                const totalSeatsRetour = eventData[date].totalSeatsRetour;
+
+                const row = `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${childrenList}</td>
+                        <td>${totalSeatsAller}</td>
+                        <td>${totalSeatsRetour}</td>
+                    </tr>
+                `;
+                eventTable.innerHTML += row;
+            }
+            totalSeatsAllerCell.textContent = grandTotalSeatsAller;
+            totalSeatsRetourCell.textContent = grandTotalSeatsRetour;
+        }
     </script>
 </body>
 </html>
