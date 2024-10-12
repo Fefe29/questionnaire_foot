@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Déplacements et véhicules foot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #b20000; /* Fond rouge foncé */
+            position: relative;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff; /* Texte blanc pour contraster avec le fond rouge */
+            text-transform: uppercase; /* Majuscules pour le titre */
+        }
+
+        /* Style pour le logo centré */
+        .logo-centered {
+            display: block;
+            margin: 0 auto 20px auto; /* Centré avec un margin */
+            width: 120px; /* Taille du logo */
+            z-index: 1; /* Logo au premier plan */
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Fond blanc pour le tableau */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white; /* Fond blanc du tableau */
+            position: relative;
+            z-index: 1;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        tfoot td {
+            font-weight: bold;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .orange {
+            color: orange;
+        }
+
+        .legend {
+            margin-top: 20px;
+            font-size: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .legend span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Déplacements et véhicules foot</h1>
+    <!-- Insertion du logo centré sous le titre sans transparence -->
+    <img src="logo.png" alt="Logo" class="logo-centered">
+
+    <form id="transportForm">
+        <label for="childName">Nom de l'enfant :</label>
+        <input type="text" id="childName" name="childName" required>
+
+        <label for="date">Date du déplacement :</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="transportOption">Disponibilités des parents :</label>
+        <select id="transportOption" name="transportOption" required>
+            <option value="allerRetour">Transport aller/retour</option>
+            <option value="aller">Seulement l'aller</option>
+            <option value="retour">Seulement le retour</option>
+            <option value="aucun">Aucun</option>
+        </select>
+
+        <div id="optionalChoices">
+            <label><input type="checkbox" id="sureCheckbox"> Je suis sûr d'y aller</label>
+            <label><input type="checkbox" id="ifNeededCheckbox"> Je peux venir si besoin</label>
+        </div>
+
+        <label for="carSeats">Nombre de places disponibles (y compris l'enfant) :</label>
+        <input type="number" id="carSeats" name="carSeats" min="1" required>
+
+        <button type="submit">Soumettre</button>
+    </form>
+
+    <h2>Déplacements</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Noms des enfants</th>
+                <th>Nombre de places à l'aller</th>
+                <th>Nombre de places au retour</th>
+            </tr>
+        </thead>
+        <tbody id="eventTable">
+            <!-- Les informations seront ajoutées ici -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">Total général des places</td>
+                <td id="totalSeatsAller"></td>
+                <td id="totalSeatsRetour"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="legend">
+        <p>Légende des couleurs :</p>
+        <p><span class="green">Vert</span> : Les parents sont sûrs d'y aller.</p>
+        <p><span class="orange">Orange</span> : Les parents peuvent venir si besoin.</p>
+    </div>
+
+    <script>
+        // JavaScript inchangé
+    </script>
+</body>
+</html>
